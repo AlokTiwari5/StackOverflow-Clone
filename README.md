@@ -2,16 +2,16 @@
 
 This is a clone of Stack Overflow Website
 
-#yarn install
+# yarn install
 use the above command on the client side to install dependencies
 
-#npm install 
+# npm install 
 use the above command on the server side to install dependencies
 
-#yarn start
+# yarn start
 use the command on the client side to run client
 
-#npm start
+# npm start
 use the command on the server side to run server
 
 ## Screenshots 
