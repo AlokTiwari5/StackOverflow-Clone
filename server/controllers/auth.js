@@ -1,51 +1,41 @@
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-
+import mongoose from "mongoose";
 import users from "../models/auth.js";
 
-export const signup = async (req, res) => {
-  const { name, email, password } = req.body;
+export const getAllUsers = async (req, res) => {
   try {
-    const existinguser = await users.findOne({ email });
-    if (existinguser) {
-      return res.status(404).json({ message: "User already Exist." });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const newUser = await users.create({
-      name,
-      email,
-      password: hashedPassword,
+    const allUsers = await users.find();
+    const allUserDetails = [];
+    allUsers.forEach((user) => {
+      allUserDetails.push({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        tags: user.tags,
+        joinedOn: user.joinedOn,
+      });
     });
-    const token = jwt.sign(
-      { email: newUser.email, id: newUser._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-    res.status(200).json({ result: newUser, token });
+    res.status(200).json(allUserDetails);
   } catch (error) {
-    res.status(500).json("Something went worng...");
+    res.status(404).json({ message: error.message });
   }
 };
 
-export const login = async (req, res) => {
-  const { email, password } = req.body;
+export const updateProfile = async (req, res) => {
+  const { id: _id } = req.params;
+  const { name, about, tags } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(_id)) {
+    return res.status(404).send("question unavailable...");
+  }
+
   try {
-    const existinguser = await users.findOne({ email });
-    if (!existinguser) {
-      return res.status(404).json({ message: "User don't Exist." });
-    }
-    const isPasswordCrt = await bcrypt.compare(password, existinguser.password);
-    if (!isPasswordCrt) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-    const token = jwt.sign(
-      { email: existinguser.email, id: existinguser._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+    const updatedProfile = await users.findByIdAndUpdate(
+      _id,
+      { $set: { name: name, about: about, tags: tags } },
+      { new: true }
     );
-    res.status(200).json({ result: existinguser, token });
+    res.status(200).json(updatedProfile);
   } catch (error) {
-    res.status(500).json("Something went worng...");
+    res.status(405).json({ message: error.message });
   }
 };
