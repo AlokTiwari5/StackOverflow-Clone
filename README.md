@@ -1,6 +1,6 @@
 # Stack Overflow Clone
 
-This is a clone of Stack Overflow Website
+This is a clone of Stack Overflow Website 
 
 # yarn install
 use the above command on the client side to install dependencies
